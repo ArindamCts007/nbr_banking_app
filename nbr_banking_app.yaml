@@ -1,0 +1,354 @@
+# yaml-language-server: $schema=openapi: 3.0.3
+openapi: 3.0.3
+
+info:
+  version: 1.0.0
+  title: My Banking API
+  description: This Banking API Contains Financial Transaction
+  license:
+    name: National Rural Banking
+    url: https://www.nbr.co.in
+  contact:
+    name: National Rural Banking
+    url: https://www.nbr.co.in
+    email: support@nbr.com
+
+servers:
+  - url: https://dev-mtls.api-internal.nbr.com/pai/v1
+    description: DEV Server
+  - url: https://test-mtls.api-internal.nbr.com/pai/v1
+    description: TEST Server
+  - url: https://uat-mtls.api-internal.nbr.com/pai/v1
+    description: UAT Server
+  - url: https://live-mtls.api-internal.nbr.com/pai/v1
+    description: PROD Server
+
+tags:
+  - name: health
+    description: Health operations
+  - name: nbr
+    description: National Rural Banking operation
+
+paths:
+  /system/health:
+    get:
+      tags: [health]
+      description: Returns system health and connected subsystems
+      operationId: nbr-health-check
+      parameters:
+        - $ref: '#/components/parameters/nbrTraceId'
+      responses:
+        '200': { $ref: '#/components/responses/SystemHealthCheckResponse' }
+        '400': { $ref: '#/components/responses/Error400Response' }
+        '401': { $ref: '#/components/responses/Error401Response' }
+        '404': { $ref: '#/components/responses/Error404Response' }
+        '405': { $ref: '#/components/responses/Error405Response' }
+        '415': { $ref: '#/components/responses/Error415Response' }
+        '429': { $ref: '#/components/responses/Error429Response' }
+        '500': { $ref: '#/components/responses/Error500Response' }
+
+  /nbr:
+    post:
+      tags: [nbr]
+      description: Create a transaction
+      operationId: nbr-create
+      parameters:
+        - $ref: '#/components/parameters/nbrTraceId'
+        - $ref: '#/components/parameters/nbrClientId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - amount
+                - currency
+                - payeeName
+                - payeeAccountNumber
+                - senderAccountNumber
+              properties:
+                amount: { $ref: '#/components/schemas/Amount' }
+                currency: { $ref: '#/components/schemas/Currency' }
+                payeeName: { $ref: '#/components/schemas/PayeeName' }
+                payeeAccountNumber: { $ref: '#/components/schemas/PayeeAccountNumber' }
+                senderAccountNumber: { $ref: '#/components/schemas/SenderAccountNumber' }
+            examples:
+              NbrCreateRequest:
+                $ref: '#/components/examples/NbrCreateRequestExample'
+      responses:
+        '201': { $ref: '#/components/responses/Success201' }
+        '400': { $ref: '#/components/responses/Error400Response' }
+        '401': { $ref: '#/components/responses/Error401Response' }
+        '404': { $ref: '#/components/responses/Error404Response' }
+        '405': { $ref: '#/components/responses/Error405Response' }
+        '415': { $ref: '#/components/responses/Error415Response' }
+        '429': { $ref: '#/components/responses/Error429Response' }
+        '500': { $ref: '#/components/responses/Error500Response' }
+
+    get:
+      tags: [nbr]
+      description: Fetch transaction details
+      operationId: nbr-get-transaction-details
+      parameters:
+        - $ref: '#/components/parameters/nbrTraceId'
+        - $ref: '#/components/parameters/nbrClientId'
+        - $ref: '#/components/parameters/nbrTrackingId'
+      responses:
+        '200': { $ref: '#/components/responses/Success200' }
+        '400': { $ref: '#/components/responses/Error400Response' }
+        '401': { $ref: '#/components/responses/Error401Response' }
+        '404': { $ref: '#/components/responses/Error404Response' }
+        '405': { $ref: '#/components/responses/Error405Response' }
+        '415': { $ref: '#/components/responses/Error415Response' }
+        '429': { $ref: '#/components/responses/Error429Response' }
+        '500': { $ref: '#/components/responses/Error500Response' }
+
+  /nbr/{nbrTrackingId}:
+    patch:
+      tags: [nbr]
+      description: Update a transaction
+      operationId: nbr-update
+      parameters:
+        - $ref: '#/components/parameters/nbrTraceId'
+        - $ref: '#/components/parameters/nbrClientId'
+        - $ref: '#/components/parameters/nbrTrackingId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [amount]
+              properties:
+                amount: { $ref: '#/components/schemas/Amount' }
+            examples:
+              NbrUpdateRequest:
+                $ref: '#/components/examples/NbrUpdateRequest'
+      responses:
+        '200': { $ref: '#/components/responses/Success200' }
+        '400': { $ref: '#/components/responses/Error400Response' }
+        '401': { $ref: '#/components/responses/Error401Response' }
+        '404': { $ref: '#/components/responses/Error404Response' }
+        '405': { $ref: '#/components/responses/Error405Response' }
+        '415': { $ref: '#/components/responses/Error415Response' }
+        '429': { $ref: '#/components/responses/Error429Response' }
+        '500': { $ref: '#/components/responses/Error500Response' }
+
+components:
+  parameters:
+    nbrTraceId:
+      name: X-Trace-Id
+      in: header
+      required: true
+      schema: { $ref: '#/components/schemas/NbrTraceId' }
+      example: TRC123456789
+
+    nbrClientId:
+      name: X-Client-Id
+      in: header
+      required: true
+      schema: { $ref: '#/components/schemas/NbrClientId' }
+      example: APP-01
+
+    nbrTrackingId:
+      name: nbrTrackingId
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/NbrTrackingId' }
+      example: "1234567890"
+
+  schemas:
+    NbrTrackingId:
+      type: string
+      pattern: '^[0-9]{10}$'
+      example: "1234567890"
+
+    NbrTraceId:
+      type: string
+      pattern: '^[A-Z]{3}[0-9]{9}$'
+      example: TRC123456789
+
+    NbrClientId:
+      type: string
+      maxLength: 10
+      pattern: '^[A-Za-z0-9-]{1,10}$'
+      example: APP-01
+
+    Amount:
+      type: number
+      format: double
+      minimum: 0.01
+      maximum: 1000000000
+      example: 1500.75
+
+    Currency:
+      type: string
+      enum: [CAD, USD, INR]
+      pattern: '^[A-Z]{3}$'
+      example: INR
+
+    PayeeName:
+      type: string
+      minLength: 2
+      maxLength: 50
+      pattern: '^[A-Za-z ]+$'
+      example: Rahul Sharma
+
+    PayeeAccountNumber:
+      type: string
+      minLength: 9
+      maxLength: 18
+      pattern: '^[0-9]+$'
+      example: "123456789012"
+
+    SenderAccountNumber:
+      type: string
+      minLength: 9
+      maxLength: 18
+      pattern: '^[0-9]+$'
+      example: "987654321098"
+
+    SuccessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: SUCCESS
+        transactionId:
+          type: string
+          example: TXN123456789
+        message:
+          type: string
+          example: Transaction processed successfully
+
+    ErrorResponse:
+      type: object
+      description: RFC 7807 Problem Details
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri
+        traceId:
+          $ref: '#/components/schemas/NbrTraceId'
+
+  responses:
+    Success200:
+      description: Successful fetch
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/SuccessResponse' }
+
+    Success201:
+      description: Successful creation
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/SuccessResponse' }
+
+    SystemHealthCheckResponse:
+      description: System health status
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status: { type: string }
+              timestamp:
+                type: string
+                format: date-time
+              services:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name: { type: string }
+                    status: { type: string }
+          examples:
+            healthSuccess:
+              $ref: '#/components/examples/SystemHealthExample'
+
+    Error400Response:
+      description: Bad Request
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          examples:
+            ex: { $ref: '#/components/examples/StandardError400Example' }
+
+    Error401Response:
+      description: Unauthorized
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+    Error404Response:
+      description: Not Found
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+    Error405Response:
+      description: Method Not Allowed
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+    Error415Response:
+      description: Unsupported Media Type
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+    Error429Response:
+      description: Too Many Requests
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+    Error500Response:
+      description: Internal Server Error
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  examples:
+    SystemHealthExample:
+      value:
+        status: UP
+        timestamp: 2026-03-12T10:15:30Z
+        services:
+          - name: database
+            status: UP
+
+    NbrCreateRequestExample:
+      value:
+        amount: 1500.75
+        currency: INR
+        payeeName: Rahul Sharma
+        payeeAccountNumber: "123456789012"
+        senderAccountNumber: "987654321098"
+
+    NbrUpdateRequest:
+      value:
+        amount: 2000.00
+
+    StandardError400Example:
+      value:
+        type: https://api.nbr.co.in/errors/validation-failed
+        title: Bad Request
+        status: 400
+        detail: Validation failed
+        instance: /nbr
+        traceId: TRC123456789
