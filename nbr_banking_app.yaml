@@ -292,36 +292,48 @@ components:
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/ErrorResponse' }
+          examples:
+            ex: { $ref: '#/components/examples/StandardError401Example' }
 
     Error404Response:
       description: Not Found
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/ErrorResponse' }
+          examples:
+            ex: { $ref: '#/components/examples/StandardError404Example' }
 
     Error405Response:
       description: Method Not Allowed
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/ErrorResponse' }
+          examples:
+            ex: { $ref: '#/components/examples/StandardError405Example' }
 
     Error415Response:
       description: Unsupported Media Type
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/ErrorResponse' }
+          examples:
+            ex: { $ref: '#/components/examples/StandardError415Example' }
 
     Error429Response:
       description: Too Many Requests
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/ErrorResponse' }
+          examples:
+            ex: { $ref: '#/components/examples/StandardError429Example' }
 
     Error500Response:
       description: Internal Server Error
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/ErrorResponse' }
+          examples:
+            ex: { $ref: '#/components/examples/StandardError500Example' }
 
   examples:
     SystemHealthExample:
@@ -350,5 +362,57 @@ components:
         title: Bad Request
         status: 400
         detail: Validation failed
+        instance: /nbr
+        traceId: TRC123456789
+    StandardError401Example:
+      value:
+        type: https://api.nbr.co.in/errors/unauthorized
+        title: Unauthorized
+        status: 401
+        detail: Authentication credentials are missing or invalid
+        instance: /nbr
+        traceId: TRC123456789
+    StandardError404Example:
+      value:
+        type: https://api.nbr.co.in/errors/resource-not-found
+        title: Not Found
+        status: 404
+        detail: Transaction not found for given ID
+        instance: /nbr/1234567890
+        traceId: TRC123456789
+
+    StandardError405Example:
+      value:
+        type: https://api.nbr.co.in/errors/method-not-allowed
+        title: Method Not Allowed
+        status: 405
+        detail: HTTP method not supported for this endpoint
+        instance: /nbr
+        traceId: TRC123456789
+
+    StandardError415Example:
+      value:
+        type: https://api.nbr.co.in/errors/unsupported-media-type
+        title: Unsupported Media Type
+        status: 415
+        detail: Content-Type must be application/json
+        instance: /nbr
+        traceId: TRC123456789
+
+    StandardError429Example:
+      value:
+        type: https://api.nbr.co.in/errors/rate-limit-exceeded
+        title: Too Many Requests
+        status: 429
+        detail: API rate limit exceeded. Please try again later
+        instance: /nbr
+        traceId: TRC123456789
+
+    StandardError500Example:
+      value:
+        type: https://api.nbr.co.in/errors/internal-server-error
+        title: Internal Server Error
+        status: 500
+        detail: Unexpected error occurred. Please contact support
         instance: /nbr
         traceId: TRC123456789
